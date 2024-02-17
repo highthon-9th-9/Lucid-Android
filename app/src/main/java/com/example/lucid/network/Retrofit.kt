@@ -1,12 +1,12 @@
 package com.example.lucid.network
 
-import com.example.lucid.network.api.LoginService
+import com.example.lucid.network.api.ApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private const val BASE_URL = "http://192.168.10.200:4000/api/"
+private const val BASE_URL = "http://192.168.10.200:4000/"
 
 object Retrofit {
     private val okHttpClient = OkHttpClient.Builder()
@@ -22,5 +22,5 @@ object Retrofit {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val loginService = retrofit.create(LoginService::class.java)
+    val apiService = retrofit.create(ApiService::class.java)
 }

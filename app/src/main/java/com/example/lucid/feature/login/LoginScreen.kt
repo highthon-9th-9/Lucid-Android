@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lucid.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 
 @Composable
@@ -38,6 +39,8 @@ fun LoginScreen(
 ) {
     val event = viewModel.event
     val context = LocalContext.current
+
+    Log.d(TAG, "keyhash : ${Utility.getKeyHash(context)}")
 
     LaunchedEffect(event) {
         event.collect {

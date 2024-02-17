@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lucid.feature.home.HomeScreen
 import com.example.lucid.feature.login.LoginScreen
+import com.example.lucid.feature.login.LoginViewModel
 
 @Composable
 fun LucidApp() {
@@ -16,7 +17,7 @@ fun LucidApp() {
         startDestination = "login",
     ) {
         composable("login") {
-            LoginScreen (navController)
+            LoginScreen (LoginViewModel())
         }
         composable("home") {
             HomeScreen()

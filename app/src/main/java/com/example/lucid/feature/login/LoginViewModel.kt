@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
-    private val loginService = Retrofit.loginService
+    private val apiService = Retrofit.apiService
 
     private val _event = MutableSharedFlow<Event>()
     val event = _event.asSharedFlow()
@@ -22,7 +22,7 @@ class LoginViewModel : ViewModel() {
         email: String,
     ) = viewModelScope.launch(Dispatchers.IO) {
         runCatching {
-            loginService.login(
+            apiService.login(
                 LoginRequest(
                     profileImage,
                     name,
