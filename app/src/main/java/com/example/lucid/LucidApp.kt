@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.lucid.feature.home.HomeScreen
 import com.example.lucid.feature.login.LoginScreen
+import com.example.lucid.feature.mypage.MyPageScreen
 import com.example.lucid.feature.result.ResultScreen
 
 @Composable
@@ -41,6 +42,9 @@ fun LucidApp() {
                 it.arguments?.getString("image") ?: "",
                 navController
             )
+        }
+        composable("myPage") {
+            MyPageScreen()
         }
     }
 }

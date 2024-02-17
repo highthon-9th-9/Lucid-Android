@@ -1,9 +1,16 @@
 package com.example.lucid.feature.mypage
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,7 +57,38 @@ fun MyPageScreen() {
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "profile"
             )
+            Text(
+                modifier = Modifier
+                    .padding(
+                        top = 12.dp,
+                        start = 28.dp,
+                    ),
+                text = "나의 꿈 일기"
+            )
+            Spacer(modifier = Modifier.padding(top = 12.dp))
+            Diary()
         }
+    }
+}
+
+@Composable
+fun Diary() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 16.dp,
+                vertical = 11.dp,
+            ),
+    ) {
+
+    }
+    LazyVerticalGrid(
+        contentPadding = PaddingValues(),
+        columns = GridCells.Adaptive(minSize = 128.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        //items()
     }
 }
 
