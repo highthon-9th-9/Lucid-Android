@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lucid.R
 import com.example.lucid.ui.theme.Typography
 import com.example.lucid.ui.theme.backGround
@@ -23,22 +24,30 @@ import com.example.lucid.ui.theme.darkWhite
 @Composable
 fun CommunityScreen(
     paddingValues: PaddingValues,
+    viewModel: CommunityViewModel = viewModel(),
 ) {
+    val communityState = viewModel.communityState
+
+    viewModel.getCommunity("community")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = paddingValues)
             .background(backGround),
     ) {
-        item(4) {
-            CommunityItem()
+        items(communityState.value!!.size) {
+            CommunityItem(
+                data = communityState.value!![it].data
+            )
         }
     }
 
 }
 
 @Composable
-fun CommunityItem() {
+fun CommunityItem(
+    data: String,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,7 +72,7 @@ fun CommunityItem() {
             )
             Text(
                 modifier = Modifier.padding(top = 4.dp),
-                text = "sdasdasdasdasdasdasdasdad",
+                text = data,
                 style = Typography.bodySmall,
                 color = darkWhite,
             )
