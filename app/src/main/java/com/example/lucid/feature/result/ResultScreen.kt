@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +33,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lucid.R
 import com.example.lucid.ui.theme.Typography
@@ -40,14 +44,21 @@ import com.example.lucid.ui.theme.main
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 
 @Composable
-fun ResultScreen() {
+fun ResultScreen(
+    data: String,
+    image: String,
+    navController: NavController
+) {
     var show by remember { mutableStateOf(false) }
+
+    val scrollState = rememberScrollState()
 
     if (show) {
         BottomSheetDialog(
             onDismissRequest = { show = false }
         ) {
             Surface(
+                color = backGround,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
@@ -58,7 +69,7 @@ fun ResultScreen() {
                 ) {
                     Text(
                         text = "주의사항",
-                        style = Typography.titleMedium,
+//                        fontSize = ,
                         color = darkWhite
                     )
                     Text(
@@ -89,7 +100,7 @@ fun ResultScreen() {
         }
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backGround)
@@ -104,6 +115,13 @@ fun ResultScreen() {
             ) {
                 Icon(
                     modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                navController.popBackStack()
+                            }
+                        )
                         .align(Alignment.CenterStart)
                         .size(24.dp),
                     painter = painterResource(id = R.drawable.ic_left_arrow),
@@ -114,13 +132,13 @@ fun ResultScreen() {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
                     text = "나의 꿈 해석 결과",
-                    style = Typography.bodyMedium,
+                    style = Typography.bodyMedium.copy(fontSize = 16.sp),
                     color = darkWhite
                 )
 
                 Icon(
                     modifier = Modifier
-                        .align(Alignment.CenterStart)
+                        .align(Alignment.CenterEnd)
                         .size(24.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -136,27 +154,34 @@ fun ResultScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        AsyncImage(
-            modifier = Modifier.fillMaxWidth(),
-            model = "https://img.khan.co.kr/news/2023/05/12/news-p.v1.20230512.e5fffd99806f4dcabd8426d52788f51a_P1.png",
-            contentDescription = null
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "아이유 정말 예뻐요 !@@!",
-            style = Typography.bodySmall,
-            color = darkWhite
-        )
-
-
-
         Column(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
         ) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)),
+                model = image,
+                contentDescription = null
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = data,
+                style = Typography.bodySmall.copy(lineHeight = 20.sp),
+                color = darkWhite
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Column {
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
