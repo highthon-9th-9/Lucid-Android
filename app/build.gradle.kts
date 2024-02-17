@@ -78,5 +78,8 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
 
     implementation ("com.kakao.sdk:v2-user:2.19.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation ("com.holix.android:bottomsheetdialog-compose:1.4.1")
 
 }
