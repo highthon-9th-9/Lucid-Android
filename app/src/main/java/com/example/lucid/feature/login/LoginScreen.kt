@@ -26,12 +26,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.lucid.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.kakao.sdk.user.UserApiClient
 
 @Composable
 fun LoginScreen(
+    navController: NavController,
     viewModel: LoginViewModel = viewModel()
 ) {
     val event = viewModel.event
