@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_EXPRESSION")
+
 package com.example.lucid.feature.login
 
 import androidx.compose.foundation.Image
@@ -15,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.lucid.R
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(
+    navController: NavController
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +52,7 @@ fun LoginScreen(){
                     horizontal = 24.dp,
                     vertical = 16.dp,
                 ),
-            onClick = { /*TODO*/ },
+            onClick = { navController.navigate("home") },
         ) {
             Text(text = "카카오 로그인")
         }
