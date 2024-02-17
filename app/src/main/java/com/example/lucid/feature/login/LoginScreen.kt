@@ -32,9 +32,6 @@ import com.kakao.sdk.user.UserApiClient
 
 @Composable
 fun LoginScreen(
-    navController: NavController
-){
-fun LoginScreen(
     viewModel: LoginViewModel = viewModel()
 ) {
     val event = viewModel.event
