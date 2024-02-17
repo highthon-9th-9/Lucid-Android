@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.lucid.feature.home.HomeScreen
 import com.example.lucid.feature.login.LoginScreen
 
 @Composable
@@ -15,7 +16,10 @@ fun LucidApp() {
         startDestination = "login",
     ) {
         composable("login") {
-            LoginScreen()
+            LoginScreen (navController)
+        }
+        composable("home") {
+            HomeScreen()
         }
     }
 }
