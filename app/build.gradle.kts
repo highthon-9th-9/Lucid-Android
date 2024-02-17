@@ -82,5 +82,7 @@ dependencies {
 
     implementation ("com.holix.android:bottomsheetdialog-compose:1.4.1")
 
+    implementation ("com.airbnb.android:lottie-compose:6.3.0")
+
 
 }

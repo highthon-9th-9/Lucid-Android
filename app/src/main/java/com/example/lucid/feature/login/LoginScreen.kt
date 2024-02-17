@@ -46,7 +46,7 @@ fun LoginScreen(
         event.collect {
             when (it) {
                 is LoginViewModel.Event.NavigateToMain -> {
-                    // TODO : Navigate 추가
+                    navController.navigate("home")
                 }
             }
         }

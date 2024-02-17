@@ -1,4 +1,4 @@
-package com.example.lucid.feature.home.community
+package com.example.lucid.feature.home.info
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -16,16 +16,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CommunityViewModel : ViewModel() {
+class InfoViewModel : ViewModel() {
     private val communityService = Retrofit.communityService
 
-    private val _uiState = MutableStateFlow(CommunityUiState(listOf()))
+    private val _uiState = MutableStateFlow(InfoUiState(listOf()))
     val uiState = _uiState.asStateFlow()
 
 
-    fun getCommunity() = viewModelScope.launch(Dispatchers.IO) {
+    fun getInfo() = viewModelScope.launch(Dispatchers.IO) {
         runCatching {
-            communityService.getPosts("community")
+            communityService.getPosts("info")
         }.onSuccess { response ->
             _uiState.update {
                 it.copy(

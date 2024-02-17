@@ -17,21 +17,24 @@ fun LucidApp() {
 
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = "login",
     ) {
         composable("login") {
-            LoginScreen (LoginViewModel())
+            LoginScreen (navController)
         }
         composable("home") {
             HomeScreen(navController)
         }
         composable(
-            "result/{data}/{image}",
+            "result/{data}/{image}/{input}",
             listOf(
                 navArgument("data") {
                     type = NavType.StringType
                 },
                 navArgument("image") {
+                    type = NavType.StringType
+                },
+                navArgument("input") {
                     type = NavType.StringType
                 }
             )
@@ -39,6 +42,7 @@ fun LucidApp() {
             ResultScreen(
                 it.arguments?.getString("data") ?: "",
                 it.arguments?.getString("image") ?: "",
+                it.arguments?.getString("input") ?: "",
                 navController
             )
         }
