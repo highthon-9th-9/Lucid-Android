@@ -1,7 +1,6 @@
 package com.example.lucid.network
 
 import com.example.lucid.network.api.DreamService
-import com.example.lucid.network.api.LoginService
 import com.example.lucid.network.api.ApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,7 +27,6 @@ object Retrofit {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val loginService = retrofit.create(LoginService::class.java)
     val dreamService = retrofit.create(DreamService::class.java)
     val apiService = retrofit.create(ApiService::class.java)
 }

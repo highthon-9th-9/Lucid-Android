@@ -6,6 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @POST("api/v1/auth")
@@ -13,8 +14,8 @@ interface ApiService {
         @Body loginRequest: LoginRequest
     )
 
-    @GET("api/v1/posts?type=community")
+    @GET("api/v1/posts?type")
     suspend fun getCommunity(
-        @Path("type") type: String,
+        @Query("type") type: String,
     ): List<CommunityResponse>
 }

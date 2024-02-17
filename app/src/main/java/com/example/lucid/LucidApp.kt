@@ -20,7 +20,7 @@ fun LucidApp() {
         startDestination = "home",
     ) {
         composable("login") {
-            LoginScreen (LoginViewModel())
+            LoginScreen (navController)
         }
         composable("home") {
             HomeScreen(navController)
