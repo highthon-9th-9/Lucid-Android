@@ -114,7 +114,7 @@ fun HomeScreen(
     val preloaderProgress by animateLottieCompositionAsState(
         preloaderLottieComposition,
         iterations = LottieConstants.IterateForever,
-        isPlaying = true
+        isPlaying = true,
     )
 
 
@@ -279,6 +279,13 @@ fun HomeScreen(
                 AsyncImage(
                     modifier = Modifier
                         .size(30.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                navController.navigate("mypage")
+                            }
+                        )
                         .clip(RoundedCornerShape(100)),
                     model = profileImage,
                     contentDescription = null,
@@ -331,7 +338,8 @@ fun HomeScreen(
                             Text(
                                 text = "어떤 꿈을 꾸셨나요?",
                                 style = Typography.bodySmall,
-                                color = gray300
+                                color = gray300,
+                                fontSize = 14.sp
                             )
                         }
                     )
@@ -351,14 +359,15 @@ fun HomeScreen(
                     modifier = Modifier
                         .clickable {
                             if (trigger) {
-                                speechRecognizer.startListening(intent)
-                            } else {
-                                if (text.isBlank().not()) {
-                                    if (showLoading.not()) {
-                                        showLoading = true
-                                        viewModel.getDream(text)
-                                    }
+                                if (text.isNotBlank()) {
+                                    showLoading = true
+                                    viewModel.getDream(text)
+                                } else {
+                                    speechRecognizer.startListening(intent)
                                 }
+                            } else {
+                                showLoading = true
+                                viewModel.getDream(text)
                             }
                         }
                         .onGloballyPositioned {
@@ -377,7 +386,15 @@ fun HomeScreen(
                 ) {
                     Icon(
                         modifier = Modifier.height(20.dp),
-                        painter = painterResource(id = if (trigger) R.drawable.ic_mic else R.drawable.ic_moon),
+                        painter = painterResource(id = if (trigger) {
+                            if (text.isNotBlank()) {
+                                R.drawable.ic_moon
+                            } else {
+                                R.drawable.ic_mic
+                            }
+                        } else {
+                            R.drawable.ic_moon
+                        }),
                         contentDescription = null,
                         tint = white
                     )
@@ -385,12 +402,20 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = if (trigger) "음성입력" else "해몽하기",
+                        text = if (trigger) {
+                            if (text.isNotBlank()) {
+                                "해몽하기"
+                            } else {
+                                "음성입력"
+                            }
+                        } else {
+                            "해몽하기"
+                        },
                         style = Typography.bodyMedium,
                         color = white
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
 

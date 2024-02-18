@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.lucid.feature.result.shimmerBrush
 import com.example.lucid.ui.theme.Typography
 import com.example.lucid.ui.theme.backGround
 import com.example.lucid.ui.theme.darkWhite
@@ -66,6 +69,8 @@ fun CommunityItem(
     author: String,
     contentImage: String?
 ) {
+    val showShimmer = remember { mutableStateOf(true) }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -108,6 +113,7 @@ fun CommunityItem(
                     AsyncImage(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value), RoundedCornerShape(12.dp))
                             .clip(RoundedCornerShape(12.dp)),
                         model = contentImage,
                         contentDescription = null,
