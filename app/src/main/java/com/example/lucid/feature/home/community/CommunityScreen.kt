@@ -53,7 +53,7 @@ fun CommunityScreen(
     ) {
         items(uiState.posts.size) {
             CommunityItem(
-                content = uiState.posts[it].data,
+                content = uiState.posts[it].input,
                 profileImage = uiState.posts[it].profileImage,
                 author = uiState.posts[it].author,
                 contentImage = uiState.posts[it].image

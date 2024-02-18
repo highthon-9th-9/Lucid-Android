@@ -52,6 +52,7 @@ fun LucidTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = backGround.toArgb()
+            window.navigationBarColor = backGround.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
