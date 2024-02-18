@@ -10,24 +10,28 @@ import com.example.lucid.model.community.CommunityResponse
 import com.example.lucid.network.Retrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CommunityViewModel : ViewModel() {
-    private val apiService = Retrofit.apiService
+    private val communityService = Retrofit.communityService
 
-    private val _communityState = MutableLiveData(listOf<CommunityResponse>())
-    val communityState : LiveData<List<CommunityResponse>> = _communityState
+    private val _uiState = MutableStateFlow(CommunityUiState(listOf()))
+    val uiState = _uiState.asStateFlow()
 
-    fun getCommunity(
-        type: String,
-    ) = viewModelScope.launch(Dispatchers.IO) {
+
+    fun getCommunity() = viewModelScope.launch(Dispatchers.IO) {
         runCatching {
-            apiService.getCommunity(
-                type = type,
-            )
-        }.onSuccess {
-            _communityState.value = it
+            communityService.getPosts("community")
+        }.onSuccess { response ->
+            _uiState.update {
+                it.copy(
+                    posts = response.data
+                )
+            }
         }.onFailure {
             Log.d("ERROR: ", it.message.toString())
         }

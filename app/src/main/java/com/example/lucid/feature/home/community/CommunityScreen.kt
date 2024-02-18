@@ -1,86 +1,127 @@
 package com.example.lucid.feature.home.community
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.lucid.R
+import coil.compose.AsyncImage
+import com.example.lucid.feature.result.shimmerBrush
 import com.example.lucid.ui.theme.Typography
 import com.example.lucid.ui.theme.backGround
 import com.example.lucid.ui.theme.darkWhite
+import com.example.lucid.ui.theme.gray
 
 @Composable
 fun CommunityScreen(
     paddingValues: PaddingValues,
     viewModel: CommunityViewModel = viewModel(),
 ) {
-    val communityState = viewModel.communityState
+    LaunchedEffect(Unit) {
+        viewModel.getCommunity()
+    }
 
-    viewModel.getCommunity("community")
+    val uiState by viewModel.uiState.collectAsState()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = paddingValues)
             .background(backGround),
     ) {
-        items(communityState.value!!.size) {
+        items(uiState.posts.size) {
             CommunityItem(
-                data = communityState.value!![it].data
+                content = uiState.posts[it].data,
+                profileImage = uiState.posts[it].profileImage,
+                author = uiState.posts[it].author,
+                contentImage = uiState.posts[it].image
             )
         }
     }
-
 }
 
 @Composable
 fun CommunityItem(
-    data: String,
+    profileImage: String,
+    content: String,
+    author: String,
+    contentImage: String?
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 16.dp,
-                vertical = 15.dp,
-            )
-            .background(backGround),
-    ) {
-        Image(
-            modifier = Modifier.size(32.dp),
-            painter = painterResource(id = R.drawable.ic_launcher_background),
-            contentDescription = "profile",
-        )
-        Column(
-            modifier = Modifier.padding(start = 8.dp)
+    val showShimmer = remember { mutableStateOf(true) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 12.dp,
+                )
+                .background(backGround),
         ) {
-            Text(
-                text = "김정윤",
-                style = Typography.titleSmall,
-                color = darkWhite,
+            AsyncImage(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(100)),
+                model = profileImage,
+                contentDescription = null,
+                contentScale = ContentScale.Crop
             )
-            Text(
-                modifier = Modifier.padding(top = 4.dp),
-                text = data,
-                style = Typography.bodySmall,
-                color = darkWhite,
-            )
-            Image(
-                modifier = Modifier.padding(top = 8.dp),
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = "content",
-            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column {
+                Text(
+                    text = author,
+                    style = Typography.titleSmall.copy(lineHeight = 19.sp),
+                    color = darkWhite,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = content,
+                    style = Typography.bodySmall.copy(lineHeight = 19.sp),
+                    color = darkWhite,
+                )
+
+                contentImage?.let {
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value), RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp)),
+                        model = contentImage,
+                        contentDescription = null,
+                    )
+                }
+            }
         }
+        Divider(modifier = Modifier.fillMaxWidth(),
+            color = gray)
     }
 }

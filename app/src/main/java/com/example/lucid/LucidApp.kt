@@ -1,5 +1,7 @@
 package com.example.lucid
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavArgs
 import androidx.navigation.NavType
@@ -18,7 +20,7 @@ fun LucidApp() {
 
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = "login",
     ) {
         composable("login") {
             LoginScreen (navController)
@@ -27,24 +29,28 @@ fun LucidApp() {
             HomeScreen(navController)
         }
         composable(
-            "result/{data}/{image}",
-            listOf(
+            route = "result/{data}/{image}/{input}",
+            arguments = listOf(
                 navArgument("data") {
                     type = NavType.StringType
                 },
                 navArgument("image") {
                     type = NavType.StringType
+                },
+                navArgument("input") {
+                    type = NavType.StringType
                 }
-            )
+            ),
         ) {
             ResultScreen(
                 it.arguments?.getString("data") ?: "",
                 it.arguments?.getString("image") ?: "",
+                it.arguments?.getString("input") ?: "",
                 navController
             )
         }
-        composable("myPage") {
-            MyPageScreen()
+        composable("mypage") {
+            MyPageScreen(navController)
         }
     }
 }

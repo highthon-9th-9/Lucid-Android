@@ -9,7 +9,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @POST("api/v1/auth")
+    @POST("v1/auth")
     suspend fun login(
         @Body loginRequest: LoginRequest
     )

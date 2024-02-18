@@ -1,6 +1,16 @@
 package com.example.lucid.feature.home
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,12 +48,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieAnimatable
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.lucid.MainActivity
 import com.example.lucid.R
 import com.example.lucid.feature.home.community.CommunityScreen
 import com.example.lucid.feature.home.info.InfoScreen
@@ -57,6 +78,7 @@ import com.example.lucid.ui.theme.main
 import com.example.lucid.ui.theme.mainPurple
 import com.example.lucid.ui.theme.pretendard
 import com.example.lucid.ui.theme.white
+import com.kakao.sdk.user.UserApiClient
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -70,18 +92,125 @@ fun HomeScreen(
 
     var text by remember { mutableStateOf("") }
 
+    var flag by remember { mutableStateOf(false) }
+    var trigger by remember { mutableStateOf(false) }
+
     var columnHeightPx by remember {
         mutableStateOf(0f)
     }
 
     val event = viewModel.event
 
+    val context = LocalContext.current
+
+    var profileImage by remember { mutableStateOf("") }
+
+    val preloaderLottieComposition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(
+            R.raw.progress
+        )
+    )
+
+    val preloaderProgress by animateLottieCompositionAsState(
+        preloaderLottieComposition,
+        iterations = LottieConstants.IterateForever,
+        isPlaying = true,
+    )
+
+
+    LaunchedEffect(Unit) {
+        UserApiClient.instance.me { user, error ->
+            if (error != null) {
+                Log.e(ContentValues.TAG, "사용자 추가 정보 획득 실패", error)
+                return@me
+            } else if (user != null) {
+                profileImage = user.kakaoAccount!!.profile!!.profileImageUrl!!
+            }
+        }
+    }
+
+    val recognitionListener: RecognitionListener = object : RecognitionListener {
+        // 말하기 시작할 준비가되면 호출
+        override fun onReadyForSpeech(params: Bundle) {
+        }
+
+        // 말하기 시작했을 때 호출
+        override fun onBeginningOfSpeech() {
+        }
+
+        // 입력받는 소리의 크기를 알려줌
+        override fun onRmsChanged(rmsdB: Float) {}
+
+        // 말을 시작하고 인식이 된 단어를 buffer에 담음
+        override fun onBufferReceived(buffer: ByteArray) {}
+
+        // 말하기를 중지하면 호출
+        override fun onEndOfSpeech() {
+        }
+
+        // 오류 발생했을 때 호출
+        override fun onError(error: Int) {
+            val message = when (error) {
+                SpeechRecognizer.ERROR_AUDIO -> "오디오 에러"
+                SpeechRecognizer.ERROR_CLIENT -> "클라이언트 에러"
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "퍼미션 없음"
+                SpeechRecognizer.ERROR_NETWORK -> "네트워크 에러"
+                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "네트웍 타임아웃"
+                SpeechRecognizer.ERROR_NO_MATCH -> "찾을 수 없음"
+                SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RECOGNIZER 가 바쁨"
+                SpeechRecognizer.ERROR_SERVER -> "서버가 이상함"
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "말하는 시간초과"
+                else -> "알 수 없는 오류임"
+            }
+        }
+
+        // 인식 결과가 준비되면 호출
+        override fun onResults(results: Bundle) {
+            // 말을 하면 ArrayList에 단어를 넣고 textView에 단어를 이어줌
+            val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            for (i in matches!!.indices) text = matches[i]
+        }
+
+        // 부분 인식 결과를 사용할 수 있을 때 호출
+        override fun onPartialResults(partialResults: Bundle) {}
+
+        // 향후 이벤트를 추가하기 위해 예약
+        override fun onEvent(eventType: Int, params: Bundle) {}
+    }
+
+    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "")    // 여분의 키
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")         // 언어 설정
+
+    val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
+    speechRecognizer.setRecognitionListener(recognitionListener)    // 리스너 설정
+
+    var showLoading by remember { mutableStateOf(false) }
+
+    fun requestPermission() {
+        // 버전 체크, 권한 허용했는지 체크
+        if (Build.VERSION.SDK_INT >= 23 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as MainActivity,
+                arrayOf(Manifest.permission.RECORD_AUDIO), 0
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        requestPermission()
+    }
+
     LaunchedEffect(event) {
         event.collect {
             when (it) {
                 is HomeViewModel.Event.NavigateToResult -> {
+                    showLoading = false
                     val encodedUrl = URLEncoder.encode(it.image, StandardCharsets.UTF_8.toString())
-                    navController.navigate("result/${it.data}/$encodedUrl")
+                    navController.navigate("result/${it.data}/$encodedUrl/$text")
                 }
             }
         }
@@ -93,6 +222,8 @@ fun HomeScreen(
             .background(backGround),
         contentAlignment = Alignment.BottomEnd,
     ) {
+
+
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -136,7 +267,7 @@ fun HomeScreen(
                                 isDream = false
                             }
                         ),
-                    text = "커뮤니티",
+                    text = "소셜",
                     fontFamily = pretendard,
                     fontWeight = FontWeight.SemiBold,
                     color = if (isCommunity) Color.White else gray200,
@@ -148,8 +279,15 @@ fun HomeScreen(
                 AsyncImage(
                     modifier = Modifier
                         .size(30.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                navController.navigate("mypage")
+                            }
+                        )
                         .clip(RoundedCornerShape(100)),
-                    model = "https://all.image.mycelebs.com/578/578_573@372.jpg",
+                    model = profileImage,
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
@@ -177,7 +315,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(RoundedCornerShape(100)),
-                            model = "https://all.image.mycelebs.com/578/578_573@372.jpg",
+                            model = profileImage,
                             contentDescription = null,
                             contentScale = ContentScale.Crop
                         )
@@ -200,7 +338,8 @@ fun HomeScreen(
                             Text(
                                 text = "어떤 꿈을 꾸셨나요?",
                                 style = Typography.bodySmall,
-                                color = gray300
+                                color = gray300,
+                                fontSize = 14.sp
                             )
                         }
                     )
@@ -219,10 +358,27 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .clickable {
-                            viewModel.getDream(text)
+                            if (trigger) {
+                                if (text.isNotBlank()) {
+                                    showLoading = true
+                                    viewModel.getDream(text)
+                                } else {
+                                    speechRecognizer.startListening(intent)
+                                }
+                            } else {
+                                showLoading = true
+                                viewModel.getDream(text)
+                            }
                         }
                         .onGloballyPositioned {
-                            columnHeightPx = it.boundsInWindow().bottom
+                            if (flag.not()) {
+                                columnHeightPx = it.boundsInWindow().bottom
+                                flag = true
+                            }
+                            if (flag) {
+                                trigger = columnHeightPx > it.boundsInWindow().bottom
+                            }
+                            Log.d("TEST", "$columnHeightPx / ${it.boundsInWindow().bottom}")
                         }
                         .background(mainPurple, RoundedCornerShape(100))
                         .padding(horizontal = 20.dp, vertical = 14.dp),
@@ -230,7 +386,15 @@ fun HomeScreen(
                 ) {
                     Icon(
                         modifier = Modifier.height(20.dp),
-                        painter = painterResource(id = if (columnHeightPx < 2295) R.drawable.ic_mic else R.drawable.ic_moon),
+                        painter = painterResource(id = if (trigger) {
+                            if (text.isNotBlank()) {
+                                R.drawable.ic_moon
+                            } else {
+                                R.drawable.ic_mic
+                            }
+                        } else {
+                            R.drawable.ic_moon
+                        }),
                         contentDescription = null,
                         tint = white
                     )
@@ -238,12 +402,36 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = if (columnHeightPx < 2275) "음성입력" else "해몽하기" ,
+                        text = if (trigger) {
+                            if (text.isNotBlank()) {
+                                "해몽하기"
+                            } else {
+                                "음성입력"
+                            }
+                        } else {
+                            "해몽하기"
+                        },
                         style = Typography.bodyMedium,
                         color = white
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+
+        if (showLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backGround.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                LottieAnimation(
+                    modifier = Modifier.size(150.dp),
+                    composition = preloaderLottieComposition,
+                    progress = { preloaderProgress },
+                    contentScale = ContentScale.FillHeight
+                )
             }
         }
     }
@@ -252,7 +440,7 @@ fun HomeScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ViewPager() {
-    val tabs = listOf("커뮤니티", "정보")
+    val tabs = listOf("커뮤니티", "아티클")
     var currentPage by remember { mutableStateOf(0) }
 
     Scaffold(
